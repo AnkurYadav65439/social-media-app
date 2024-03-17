@@ -29,7 +29,7 @@ const AllUsers = () => {
           <Loader />
         ) : (
           <ul className="user-grid">
-            {creators?.pages.map((page, index) => (
+            {creators?.pages.map((page) => (
               page?.documents.map((doc) => (
                 <li key={doc.$id} className="flex-1 min-w-[200px] w-full ">
                   <UserCard user={doc} />

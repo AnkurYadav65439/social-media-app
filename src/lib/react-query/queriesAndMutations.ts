@@ -81,7 +81,7 @@ export const useSavePost = () => {
 
     return useMutation({
         mutationFn: ({ postId, userId }: { postId: string; userId: string }) => savePost(postId, userId),
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
             })
@@ -100,7 +100,7 @@ export const useDeleteSavedPost = () => {
 
     return useMutation({
         mutationFn: (savedRecordId: string) => deleteSavedPost(savedRecordId),
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.GET_RECENT_POSTS]
             })
@@ -172,7 +172,7 @@ export const useGetPosts = () => {
             return lastId;
         }
     })
-}
+}  
 
 export const useSearchPosts = (searchTerm: string) => {
     return useQuery({

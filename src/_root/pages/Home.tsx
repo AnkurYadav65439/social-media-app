@@ -4,7 +4,8 @@ import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 
 const Home = () => {
-  const { data: posts, isPending: isPostLoading, isError: isErrorPosts } = useGetRecentPosts();
+  const { data: posts, isPending: isPostLoading } = useGetRecentPosts();
+  //isError property is there too
 
   return (
     <div className="flex flex-1 md:ml-[270px]">
