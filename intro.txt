@@ -1,0 +1,81 @@
+//javascrip mastery: social media app
+  using react, tailwind, appwrite typescript, react query, shadcn ui, context api
+  react-dropzone for dropping files to createPost->PostForm->FileUploader
+
+//VERY IMP : FINALLY (At 3:37)as we are using react-query 'useQuery' function like 'getRecentPosts'(Home compnent) then it can't run with class based appwrite auth configuration('this.databases not defined' error)
+     so we needed to convert class auth appwrite configure to normal configuration(just like jsM in vid have done)
+     new appwrite folder src->lib->appwrite
+
+//FUNCTIONALITY IMP
+  FOLLOWERS FOLLOWING are hardcoded(Profile.tsx)
+
+//QUESTIONS: 
+  1.in db-colllection-users : why imagesUrl is required but imageid is not?
+    sol : as imageUrl is created using avatarUrl from appwrite before creating user in db.
+  2.appwrite function : saveuserToDb : why only some of attributes values taken or only some taken as optional?
+  3.appwrite function : why we use listDocuments() and Not getDocument(with slug) for getting a getCurrentUser(); to save for state in authcontext.(just like we did in blogapp)
+  4. api.ts : updatePost , strange way of setting value of image object??
+  5. deletePost : why only post is deleted and NOT that file(storage) of that post.
+  6. Profile cmpnt : interface vs type (for StatBlockProps), here type works fine though
+
+
+//globals.css copied form github
+  which have some imp css used in project
+
+//tailwind.confog.js : copy from his github 
+  as it contains some css and also npm i -D tailwindcss-animate
+
+//src->_auth folder for private routes
+  _root folder for public routes
+
+//shadcn ui : for ui components like button etc
+  for installation : follow steps on their official website
+  after than some  additional conguration it needs in the terminal
+   answer as default , yes,  with our correct file paths .DONE.
+   use shadcn by (ppasting their compnt command in terminal)
+   then it adds in components/ui/componentName folder
+
+//signup form : used shadcn form(which uses react-hook-form and zod for form validation)
+  installation from website and vid
+  BIT COMPLEX
+
+//for appwrite database: snapgram
+  collections: posts, users, saves
+  'relationship' attributes are used here
+   Posts: with Users(creator-posts, likes-liked) with other simple attributes
+         indexes: caption(full text, desc) for appwrite auto searching
+   Users: two rel. with posts, other simple attributes
+   Saves: only two rel. attribute (on with users, one with posts)
+   (refer snapgram-mydevdep-archhitecture ss)
+
+
+
+//tanstack/react-query: for making query(fetching)
+  provide features as mutations, caching, infinite scolling
+  NOTE : u have to make a file QueryProvider(code from site) in you r-q folder 
+        and also wrap up your main app just like context Provider
+
+//REACT-QUERY : implented it inside lib-react-query and then using it inside our frontend(i.e. signup form)
+  its like a layer between appwrite(backend) and frontend while fetching data, it provides features like caching etc
+  now we have to use react-query mutation function for fetching calls and not calling appwrite function like
+    createUserAccount, signInAccount, signOutAccount, createPost direclty
+
+//SOME FRONTEND EXPLAINATION
+  //TopBar : class topbar neccasry as it hides topbar after a certain width
+  //LeftSideBar: class leftsidebar also
+
+//AFTER LONG
+
+//react-query 
+  //using enabled: for enable/disable automatic refetching
+  //useGetPosts (infinitePost ) function and query are COMPLEX to understand?
+  VERY IMP: useDebounce hook(code from github or sandbox) for react-query for optimising Explore compnnet 
+   in which we have to use searchPosts function with a searchValue from useState which keeps initiating api calls for each typed letter(in searchbox)
+   Debouncing: after a specific time(ms), we want to call our api for searchPosts, this method known as debouncing
+  
+  src->hooks->useDebounce
+
+  we use 'pagination' as well with using '.pages' or cursorAfter(last doc's id) methods etc
+
+//for infinte scrolling
+  //npm i react-intersection-observer : which observes elements in view, by inView and ref provided fom its hook 'useInView'
