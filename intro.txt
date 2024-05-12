@@ -17,12 +17,13 @@
   4. api.ts : updatePost , strange way of setting value of image object??
   5. deletePost : why only post is deleted and NOT that file(storage) of that post.
   6. Profile cmpnt : interface vs type (for StatBlockProps), here type works fine though
+  7. After sign up or sign in, an cookie fallback is stored in local storage by appwrite.
 
 
 //globals.css copied form github
   which have some imp css used in project
 
-//tailwind.confog.js : copy from his github 
+//tailwind.config.js : copy from his github 
   as it contains some css and also npm i -D tailwindcss-animate
 
 //src->_auth folder for private routes

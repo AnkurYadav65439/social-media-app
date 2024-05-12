@@ -1,5 +1,5 @@
 import { account, databases, storage, avatars } from "./config";
-import { INewPost, INewUser, IUpdatePost } from "@/types";
+import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import conf from "@/conf/conf"
 import { ID, Query } from "appwrite";
 
@@ -63,7 +63,7 @@ export async function signInAccount(user: { email: string, password: string }) {
 export async function getCurrentUser() {
     try {
         const currentAccount = await account.get();
-        
+
         if (!currentAccount) throw Error;
 
         const currentUser = await databases.listDocuments(conf.appwriteDatabaseId, conf.appwriteUsersCollectionId, [Query.equal('accountId', currentAccount.$id)]);
@@ -246,7 +246,7 @@ export async function updatePost(post: IUpdatePost) {
 
             if (!uploadedFile) throw Error;
 
-            //get file url
+            //get new file url
             const fileUrl = getFilePreview(uploadedFile.$id);
 
             if (!fileUrl) {
@@ -256,13 +256,13 @@ export async function updatePost(post: IUpdatePost) {
             }
 
             image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id }
-            console.log("strange image object inside hasFileToUpload(updatepost) : ", image);
+
         }
 
         //convert tags into array 
         const tags = post.tags?.replace(/ /g, '').split(',') || [];
 
-        //save post to database
+        //finally update post
         const updatedPost = await databases.updateDocument(
             conf.appwriteDatabaseId,
             conf.appwritePostsCollectionId,
@@ -276,8 +276,16 @@ export async function updatePost(post: IUpdatePost) {
             })
 
         if (!updatedPost) {
-            await deleteFile(post.imageId)   //???why here we delete previous post file, only newer file needs to delete herer and only if hasFiletoUpload is true
+            //delete new file 
+            if (hasFileToUpload) {
+                await deleteFile(image.imageId)
+            }
             throw Error
+        }
+
+        //safely delete old file after ssuccessful updation
+        if (hasFileToUpload) {
+            await deleteFile(post.imageId);
         }
         return updatedPost;
 
@@ -369,6 +377,65 @@ export async function getUserById(userId: string) {
         const user = await databases.getDocument(conf.appwriteDatabaseId, conf.appwriteUsersCollectionId, userId);
 
         return user;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function updateUser(user: IUpdateUser) {
+    const hasFileToUpload = user.file.length > 0;
+
+    try {
+        let image = {
+            //basically current file data
+            imageUrl: user.imageUrl,
+            imageId: user.imageId
+        }
+        if (hasFileToUpload) {
+            // Upload new file to appwrite storage
+            const uploadedFile = await uploadFile(user.file[0]);
+            if (!uploadedFile) throw Error;
+
+            //get new file url
+            const fileUrl = getFilePreview(uploadedFile.$id);
+
+            if (!fileUrl) {
+                await deleteFile(uploadedFile.$id);
+                throw Error;
+            }
+
+            image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+
+
+        }
+
+        //finally update user
+        const updatedUser = await databases.updateDocument(
+            conf.appwriteDatabaseId,
+            conf.appwriteUsersCollectionId,
+            user.userId,
+            {
+                name: user.name,
+                bio: user.bio,
+                imageId: image.imageId,
+                imageUrl: image.imageUrl
+            })
+
+        if (!updatedUser) {
+            // Delete new file that has been recently uploaded
+            if (hasFileToUpload) {
+                await deleteFile(image.imageId);
+            }
+            // If no new file uploaded, just throw error
+            throw Error;
+        }
+
+        // Safely delete old file after successful update
+        if (user.imageId && hasFileToUpload) {
+            await deleteFile(user.imageId);
+        }
+
+        return updatedUser;
     } catch (error) {
         console.log(error);
     }
