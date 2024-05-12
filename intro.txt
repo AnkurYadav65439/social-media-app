@@ -80,3 +80,8 @@
 
 //for infinte scrolling
   //npm i react-intersection-observer : which observes elements in view, by inView and ref provided fom its hook 'useInView'
+
+//for deploymet
+ // have to use @ts-ignore at queriesand mutations for ignoring ts error for infinite posts and users
+ //used npm i --save serve for start command "start: serve -s dist" not build(as in vite)
+ //apwrite hostname update to deployed render domain from localhost
